@@ -56,7 +56,7 @@
             });
         },
 
-        init: function (parameters) {
+        init: function (parameters, callback) {
             parameters = $.extend({
                 prefix: "",
                 suffix: "",
@@ -171,7 +171,7 @@
                 function maskAndPosition(startPos) {
                     var originalLen = $input.val().length,
                         newLen;
-                    $input.val(maskValue($input.val(), settings));
+                    $input.val(maskValue($input.val(), settings, callback));
                     newLen = $input.val().length;
                     // If the we're using the reverse option,
                     // do not put the cursor at the end of
@@ -191,7 +191,7 @@
                     if (settings.precision > 0 && value.indexOf(settings.decimal) < 0) {
                         value += settings.decimal + new Array(settings.precision + 1).join(0);
                     }
-                    $input.val(maskValue(value, settings));
+                    $input.val(maskValue(value, settings, callback));
                 }
 
                 function changeSign() {
@@ -471,14 +471,22 @@
         return operator + settings.prefix + value + settings.suffix;
     }
 
-    function maskValue(value, settings) {
+    function maskValue(value, settings, callback) {
         if (settings.allowEmpty && value === "") {
             return "";
         }
         if (!!settings.reverse) {
-            return maskValueReverse(value, settings);
+            value = maskValueReverse(value, settings, callback);
+            if ( callback ){
+                callback(value);
+            }
+            return value;
         }
-        return maskValueStandard(value, settings);
+        value = maskValueStandard(value, settings);
+        if ( callback ){
+            callback(value);
+        }
+        return value;
     }
 
     function maskValueStandard(value, settings) {
